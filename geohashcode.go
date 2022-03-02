@@ -16,10 +16,10 @@ type Box struct {
 
 func NewBox(geohashcode string) Box {
 	box := geohash.BoundingBox(geohashcode)
-	//左上角 西北角 小lng 大lat
+	//左上角 西北角 大lng 小lat
 	northwestPoint := &Point{
-		x: box.MinLng,
-		y: box.MaxLat,
+		x: box.MaxLng,
+		y: box.MinLat,
 	}
 	//右上角 东北角 大lng 大lat
 	northeastPoint := &Point{
@@ -73,8 +73,6 @@ func (b Box) IsLinesIntersected(line *Line) bool {
 	case IsLinesIntersected(b.NorthLine, line):
 		return true
 	case IsLinesIntersected(b.SouthLine, line):
-		return true
-	case b.Inbox(line.start), b.Inbox(line.end):
 		return true
 	}
 	return false
