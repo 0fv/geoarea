@@ -2,7 +2,6 @@ package geoarea
 
 import (
 	"errors"
-	"fmt"
 	"image/color"
 	"strings"
 	"sync"
@@ -102,8 +101,7 @@ func (p Polygon) Geohash() (cross []string, in []string) {
 	//逐步扩大框大小
 	containSet := make(map[string]struct{})
 	//遍历获取是否在框框中或者路过框
-	for i, code := range squareData {
-		fmt.Println(i, len(squareData))
+	for _, code := range squareData {
 		wg.Add(1)
 		go func(squarehashcode string) {
 			defer wg.Done()
@@ -246,26 +244,29 @@ func (p Polygon) SquarePointIn(box Box) boxStatus {
 	if status1 && status2 && status3 && status4 {
 		return boxStatusInner
 	}
-	if status1 || status2 || status3 || status4 {
-		return boxStatusCross
-	}
-	return boxStatusOut
+	return boxStatusCross
 
 }
 
 func (p Polygon) SquareStatus(box Box) boxStatus {
 	status := p.SquarePointIn(box)
 	switch status {
-	case boxStatusInner, boxStatusCross:
+	case boxStatusInner:
 		for _, line := range p.lines {
 			if box.IsLinesIntersected(line) {
 				return boxStatusCross
 			}
 		}
 		return boxStatusInner
-	default:
+	case boxStatusCross:
+		for _, line := range p.lines {
+			if box.IsLinesIntersected(line) {
+				return boxStatusCross
+			}
+		}
 		return boxStatusOut
 	}
+	return boxStatusOut
 }
 
 func (p Polygon) Export() [][]float64 {
