@@ -91,7 +91,7 @@ func (p Polygon) Bound() (maxlat, minlat, maxlng, minlng float64) {
 	return
 }
 
-//查询线段交叉的，包含的 hashcode
+// 查询线段交叉的，包含的 hashcode
 func (p Polygon) Geohash() (cross []string, in []string) {
 	inmux := sync.RWMutex{}
 	crossmux := sync.Mutex{}
@@ -182,7 +182,7 @@ func CrossStatusCal(startStatus, endStatus bool) CrossStatus {
 	return KeepOut
 }
 
-//点位是否在多边形内
+// 点位是否在多边形内
 func (p Polygon) PointIn(point *Point) (intersected bool) {
 	length := len(p.points)
 	x := point.x
@@ -196,7 +196,7 @@ func (p Polygon) PointIn(point *Point) (intersected bool) {
 		start := p.points[s]
 		end := p.points[e]
 		xmin := start.x
-		xmax := end.y
+		xmax := end.x
 		if xmin > xmax {
 			xmin, xmax = xmax, xmin
 		}
@@ -231,7 +231,7 @@ const (
 	boxStatusCross
 )
 
-//矩形是否在多边形内 初步判断
+// 矩形是否在多边形内 初步判断
 func (p Polygon) SquarePointIn(box Box) boxStatus {
 	point1 := NewPoint(box.MaxLng, box.MaxLat)
 	point2 := NewPoint(box.MaxLng, box.MinLat)
