@@ -11,14 +11,16 @@ import (
 var mapPic *MapPic
 
 func TestMain(m *testing.M) {
-	mapPic = NewMapPic(4000,
-		4000)
+	mapPic = NewMapPic(8000,
+		8000)
+	
 	m.Run()
 	http.DefaultClient.Transport = &http.Transport{
 		Proxy: func(r *http.Request) (*url.URL, error) {
 			return url.Parse("http://127.0.0.1:8889")
 		},
 	}
+
 	mapPic.ToFile("point.png")
 }
 

@@ -124,7 +124,7 @@ func NewGeoTire() *GeoTire {
 	}
 }
 
-//添加
+// 添加
 func (g *GeoTire) Add(ploygon *Polygon, value IGetKey) {
 	g.rmux.Lock()
 	defer g.rmux.Unlock()
@@ -132,30 +132,56 @@ func (g *GeoTire) Add(ploygon *Polygon, value IGetKey) {
 	g.data[value.GetKey()] = value
 }
 
-//存在创建，不存在更新
+// 存在创建，不存在更新
 func (g *GeoTire) Set(ploygon *Polygon, value IGetKey) {
-	g.Del(value)
-	g.Add(ploygon, value)
+	g.rmux.Lock()
+	defer g.rmux.Unlock()
+	key := value.GetKey()
+	delete(g.data, key)
+	for _, v := range g.root {
+		v.Del(key)
+	}
+	g.root.Add(ploygon, value)
+	g.data[value.GetKey()] = value
 }
 
-//获取在某区域的数据
+func (g *GeoTire) SetMulti(ploygons []*Polygon, value IGetKey) {
+	g.rmux.Lock()
+	defer g.rmux.Unlock()
+	key := value.GetKey()
+	delete(g.data, key)
+	for _, v := range g.root {
+		v.Del(key)
+	}
+	for _, v := range ploygons {
+		g.root.Add(v, value)
+	}
+	g.data[value.GetKey()] = value
+}
+
+// 获取在某区域的数据
 func (g *GeoTire) Get(point *Point) []IGetKey {
 	g.rmux.RLock()
 	defer g.rmux.RUnlock()
 	keys := g.root.Get(point)
-	ret := make([]IGetKey, 0, len(keys))
-	for i, v := range keys {
-		ret[i] = g.data[v]
+	ret := make([]IGetKey, 0)
+	existMap := map[interface{}]struct{}{}
+	for _, v := range keys {
+		if _, ok := existMap[v]; ok {
+			continue
+		}
+		existMap[v] = struct{}{}
+		ret = append(ret, g.data[v])
 	}
 	return ret
 }
 
-//删除
+// 删除
 func (g *GeoTire) Del(value IGetKey) {
 	g.rmux.Lock()
 	defer g.rmux.Unlock()
-	delete(g.data, value.GetKey())
 	key := value.GetKey()
+	delete(g.data, key)
 	for _, v := range g.root {
 		v.Del(key)
 	}

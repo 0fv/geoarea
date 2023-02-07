@@ -9,9 +9,9 @@ import (
 )
 
 type MapAbbr struct {
-	Color color.Color
+	Color     color.Color
 	FillColor color.Color
-	Size  float64
+	Size      float64
 }
 
 func (m *MapAbbr) GetMapAbbr() *MapAbbr {
@@ -34,6 +34,8 @@ type MapPic struct {
 
 func NewMapPic(width, height int) *MapPic {
 	m := sm.NewContext()
+	m.SetTileProvider(sm.NewTileProviderArcgisWorldImagery())
+	m.SetZoom(15)
 	m.SetSize(width, height)
 	return &MapPic{
 		m: m,
